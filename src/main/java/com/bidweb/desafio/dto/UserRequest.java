@@ -7,7 +7,7 @@ import lombok.Data;
 @Data
 public class UserRequest {
     @NotBlank(message = "O nome do usuário é obrigatório")
-    private String nome;
+    private String name;
 
     @Email(message = "O campo (email) deve conter um e-mail válido.")
     private String email;
