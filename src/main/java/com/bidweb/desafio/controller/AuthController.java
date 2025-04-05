@@ -3,6 +3,7 @@ package com.bidweb.desafio.controller;
 import javax.naming.AuthenticationException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,12 +25,13 @@ public class AuthController {
 
   @PostMapping("/login")
   @Operation(summary = "Login", description = "Login de usuário")
-  public ResponseEntity<?> login(@RequestBody AuthRequest request) throws AuthenticationException {
+  public ResponseEntity<Object> login(@RequestBody AuthRequest request) throws AuthenticationException {
     try {
       String token = this.authService.login(request);
       return ResponseEntity.ok(ResponseUtils.createMessageResponse(token));
     } catch (Exception e) {
-      return ResponseEntity.badRequest().body(ResponseUtils.createMessageResponse("Credenciais inválidas"));
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+          .body(ResponseUtils.createMessageResponse("Credenciais inválidas"));
     }
   }
 }
