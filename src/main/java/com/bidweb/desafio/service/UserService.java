@@ -21,16 +21,16 @@ public class UserService {
   @Autowired
   private PasswordEncoder passwordEncoder;
 
-  public UserResponse createUser(UserRequest user) {
+  public UserResponse createUser(UserRequest request) {
     try {
-      Optional<User> existingUser = userRepository.findByEmail(user.getEmail());
+      Optional<User> existingUser = userRepository.findByEmail(request.getEmail());
       if (existingUser.isPresent()) {
         throw new RuntimeException("Usuário já cadastrado");
       }
-      var passwordEncoded = passwordEncoder.encode(user.getPassword());
+      var passwordEncoded = passwordEncoder.encode(request.getPassword());
       User newUser = new User();
-      newUser.setName(user.getName());
-      newUser.setEmail(user.getEmail());
+      newUser.setName(request.getName());
+      newUser.setEmail(request.getEmail());
       newUser.setPassword(passwordEncoded);
       newUser.setCreatedAt(LocalDateTime.now());
       newUser.setUpdatedAt(LocalDateTime.now());
