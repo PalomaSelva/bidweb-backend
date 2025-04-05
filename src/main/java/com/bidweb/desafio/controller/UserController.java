@@ -3,11 +3,10 @@ package com.bidweb.desafio.controller;
 import com.bidweb.desafio.dto.UserRequest;
 import com.bidweb.desafio.dto.UserResponse;
 import com.bidweb.desafio.service.UserService;
+import com.bidweb.desafio.util.ResponseUtils;
+
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -29,13 +28,8 @@ public class UserController {
         } catch (Exception e) {
             return ResponseEntity
                     .badRequest()
-                    .body(createMessageResponse(e.getMessage()));
+                    .body(ResponseUtils.createMessageResponse(e.getMessage()));
         }
     }
 
-    private Map<String, String> createMessageResponse(String message) {
-        Map<String, String> response = new HashMap<>();
-        response.put("message", message);
-        return response;
-    }
 }
