@@ -14,25 +14,25 @@ import com.bidweb.desafio.repository.UserRerpository;
 @Service
 public class UserService {
 
-@Autowired
-private UserRerpository userRepository;
+  @Autowired
+  private UserRerpository userRepository;
 
-public UserResponse createUser(UserRequest user) {
-  try {
-    Optional<User> existingUser = userRepository.findByEmail(user.getEmail());
-    if (existingUser.isPresent()) {
-      throw new RuntimeException("Usuário já cadastrado");
+  public UserResponse createUser(UserRequest user) {
+    try {
+      Optional<User> existingUser = userRepository.findByEmail(user.getEmail());
+      if (existingUser.isPresent()) {
+        throw new RuntimeException("Usuário já cadastrado");
+      }
+      User newUser = new User();
+      newUser.setName(user.getName());
+      newUser.setEmail(user.getEmail());
+      newUser.setPassword(user.getPassword());
+      newUser.setCreatedAt(LocalDateTime.now());
+      newUser.setUpdatedAt(LocalDateTime.now());
+      userRepository.save(newUser);
+      return new UserResponse(newUser);
+    } catch (Exception ex) {
+      throw new RuntimeException(ex.getMessage());
     }
-    User newUser = new User();
-    newUser.setName(user.getName());
-    newUser.setEmail(user.getEmail());
-    newUser.setPassword(user.getPassword());
-    newUser.setCreatedAt(LocalDateTime.now());
-    newUser.setUpdatedAt(LocalDateTime.now());
-    userRepository.save(newUser);
-    return new UserResponse(newUser);
-  } catch (Exception ex) {
-    throw new RuntimeException("Erro ao criar usuário: " + ex.getMessage());
   }
-}
 }
