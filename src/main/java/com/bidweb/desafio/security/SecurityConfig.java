@@ -16,8 +16,12 @@ public class SecurityConfig {
   SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     return http
         .csrf(csrf -> csrf.disable())
+        .headers(headers -> headers.frameOptions(frame -> frame.disable()))
         .authorizeHttpRequests(auth -> {
-          auth.requestMatchers("/users/**").permitAll();
+          auth.requestMatchers("/api/users").permitAll();
+          auth.requestMatchers("/h2-console/**").permitAll();
+          auth.requestMatchers("/swagger/**", "/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**",
+              "/webjars/**").permitAll();
           auth.anyRequest().authenticated();
         })
         .build();
