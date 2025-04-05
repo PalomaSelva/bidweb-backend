@@ -28,15 +28,15 @@ public class AuthService {
     var user = userRepository.findByEmail(request.getEmail())
         .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
-    var passwordMatches = passwordEncoder.matches(request.getPassword(), user.getPassword());
+    var passwordMatches = passwordEncoder.matches(request.getPassword(),
+        user.getPassword());
     if (!passwordMatches) {
       throw new AuthenticationException();
     }
-    var token = JWT.create().withIssuer(null)
-        .withSubject(user.getId().toString())
-        .withClaim("email", user.getEmail())
-        .withClaim("name", user.getName())
-        .sign(Algorithm.HMAC256(secretKey));
+    Algorithm algorithm = Algorithm.HMAC256(secretKey);
+
+    var token = JWT.create().withIssuer("javagas")
+        .withSubject(user.getId().toString()).sign(algorithm);
     return token;
   }
 }
