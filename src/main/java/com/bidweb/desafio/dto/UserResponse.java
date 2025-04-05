@@ -10,7 +10,7 @@ public class UserResponse {
   private String name;
   private String email;
 
-  public UserResponse(User user){
+  public UserResponse(User user) {
     this.id = user.getId();
     this.name = user.getName();
     this.email = user.getEmail();
