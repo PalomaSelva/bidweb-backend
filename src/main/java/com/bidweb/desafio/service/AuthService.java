@@ -38,9 +38,10 @@ public class AuthService {
     }
     Algorithm algorithm = Algorithm.HMAC256(secretKey);
 
-    var token = JWT.create().withIssuer("javagas")
+    var token = JWT.create().withIssuer("vendas")
         .withExpiresAt(Instant.now().plus(Duration.ofHours(2)))
-        .withSubject(user.getId().toString()).sign(algorithm);
+        .withSubject(user.getId().toString())
+        .sign(algorithm);
 
     return token;
   }
