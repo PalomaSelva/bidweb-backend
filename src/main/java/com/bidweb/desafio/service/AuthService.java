@@ -1,5 +1,7 @@
 package com.bidweb.desafio.service;
 
+import javax.naming.AuthenticationException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -15,12 +17,13 @@ public class AuthService {
   @Autowired
   private PasswordEncoder passwordEncoder;
 
-  public void login(AuthRequest request) {
+  public void login(AuthRequest request) throws AuthenticationException {
     var user = userRepository.findByEmail(request.getEmail())
         .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
-    if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-      throw new RuntimeException("Senha inválida");
+    var passwordMatches = passwordEncoder.matches(request.getPassword(), user.getPassword());
+    if (!passwordMatches) {
+      throw new AuthenticationException();
     }
   }
 }
