@@ -16,6 +16,9 @@ import com.bidweb.desafio.util.ResponseUtils;
 
 import io.swagger.v3.oas.annotations.Operation;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -23,12 +26,14 @@ public class AuthController {
   @Autowired
   private AuthService authService;
 
-  @PostMapping("/login")
+  @PostMapping
   @Operation(summary = "Login", description = "Login de usuário")
   public ResponseEntity<Object> login(@RequestBody AuthRequest request) throws AuthenticationException {
     try {
       String token = this.authService.login(request);
-      return ResponseEntity.ok(ResponseUtils.createMessageResponse(token));
+      Map<String, String> response = new HashMap<>();
+      response.put("token", token);
+      return ResponseEntity.ok(response);
     } catch (Exception e) {
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
           .body(ResponseUtils.createMessageResponse("Credenciais inválidas"));
