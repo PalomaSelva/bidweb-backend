@@ -40,4 +40,10 @@ public class UserService {
       throw new RuntimeException(ex.getMessage());
     }
   }
+
+  public UserResponse getUserById(Long id) {
+    User user = userRepository.findById(id)
+        .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+    return new UserResponse(user);
+  }
 }

@@ -32,4 +32,16 @@ public class UserController {
         }
     }
 
+    @GetMapping("/{id}")
+    @Operation(summary = "Busca usuário por ID", description = "Retorna os dados do usuário pelo ID.")
+    public ResponseEntity<?> getUserById(@PathVariable Long id) {
+        try {
+            UserResponse userResponse = userService.getUserById(id);
+            return ResponseEntity.ok(userResponse);
+        } catch (Exception e) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(ResponseUtils.createMessageResponse(e.getMessage()));
+        }
+    }
 }
