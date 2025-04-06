@@ -41,6 +41,7 @@ public class AuthService {
     var token = JWT.create().withIssuer("vendas")
         .withExpiresAt(Instant.now().plus(Duration.ofHours(2)))
         .withSubject(user.getId().toString())
+        .withClaim("userId", user.getId().toString())
         .sign(algorithm);
 
     return token;
