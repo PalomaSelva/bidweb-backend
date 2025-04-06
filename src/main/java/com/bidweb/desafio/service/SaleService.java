@@ -1,5 +1,6 @@
 package com.bidweb.desafio.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import com.bidweb.desafio.dto.PaginatedResponse;
 import com.bidweb.desafio.dto.SaleResponse;
+import com.bidweb.desafio.dto.TopProductsResponse;
 import com.bidweb.desafio.model.Sale;
 import com.bidweb.desafio.repository.SaleRepository;
 
@@ -40,6 +42,24 @@ public class SaleService {
           sales.getTotalElements());
     } catch (Exception e) {
       throw new RuntimeException("Erro ao buscar vendas paginadas: " + e.getMessage());
+    }
+  }
+
+  public List<TopProductsResponse> getTopProductsByMonth() {
+    try {
+      LocalDateTime now = LocalDateTime.now();
+      LocalDateTime startDate = now.withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0);
+      LocalDateTime endDate = startDate.plusMonths(1);
+
+      List<Object[]> results = saleRepository.findTopProductsByMonth(startDate, endDate);
+
+      return results.stream()
+          .map(result -> new TopProductsResponse(
+              (String) result[0],
+              (Long) result[1]))
+          .collect(Collectors.toList());
+    } catch (Exception e) {
+      throw new RuntimeException("Erro ao buscar produtos mais vendidos: " + e.getMessage());
     }
   }
 }
