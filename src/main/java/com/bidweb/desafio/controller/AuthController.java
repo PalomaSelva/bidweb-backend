@@ -26,7 +26,7 @@ public class AuthController {
   @Autowired
   private AuthService authService;
 
-  @PostMapping
+  @PostMapping("/login")
   @Operation(summary = "Login", description = "Login de usuário")
   public ResponseEntity<Object> login(@RequestBody AuthRequest request) throws AuthenticationException {
     try {

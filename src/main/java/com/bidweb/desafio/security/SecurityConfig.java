@@ -24,10 +24,10 @@ public class SecurityConfig {
         .cors(cors -> cors.configure(http))
         .headers(headers -> headers.frameOptions(frame -> frame.disable()))
         .authorizeHttpRequests(auth -> {
-          auth.requestMatchers("/api/auth").permitAll();
+          auth.requestMatchers("/api/auth/login").permitAll();
           auth.requestMatchers("/api/users").permitAll();
           auth.requestMatchers("/h2-console/**").permitAll();
-          auth.requestMatchers("/swagger/**", "/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**",
+          auth.requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**",
               "/webjars/**").permitAll();
           auth.anyRequest().authenticated();
         }).addFilterBefore(securityFilter, BasicAuthenticationFilter.class)
