@@ -42,8 +42,12 @@ public class UserService {
   }
 
   public UserResponse getUserById(Long id) {
-    User user = userRepository.findById(id)
-        .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
-    return new UserResponse(user);
+    try {
+      User user = userRepository.findById(id)
+          .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+      return new UserResponse(user);
+    } catch (Exception ex) {
+      throw new RuntimeException(ex.getMessage());
+    }
   }
 }

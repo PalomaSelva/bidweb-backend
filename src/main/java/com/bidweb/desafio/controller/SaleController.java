@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.bidweb.desafio.dto.PaginatedResponse;
 import com.bidweb.desafio.dto.SaleResponse;
 import com.bidweb.desafio.service.SaleService;
+import com.bidweb.desafio.util.ResponseUtils;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -29,8 +30,13 @@ public class SaleController {
   @GetMapping("/all")
   @Operation(summary = "Lista as vendas", description = "Retorna uma lista com todas as vendas cadastradas.")
   public ResponseEntity<List<SaleResponse>> getAllSales() {
-    List<SaleResponse> sales = saleService.getAllSales();
-    return ResponseEntity.ok(sales);
+    try {
+      List<SaleResponse> sales = saleService.getAllSales();
+      return ResponseEntity.ok(sales);
+    } catch (Exception e) {
+      return ResponseEntity.badRequest()
+          .body(List.of());
+    }
   }
 
   @GetMapping
@@ -40,11 +46,15 @@ public class SaleController {
       @Parameter(description = "Quantidade de itens por página") @RequestParam(defaultValue = "10") int pageSize) {
 
     PageRequest pageRequest = PageRequest.of(page - 1, pageSize, Sort.by(Sort.Direction.ASC, "id"));
-
-    Page<SaleResponse> sales = saleService.getAllSales(pageRequest);
-    PaginatedResponse<SaleResponse> response = new PaginatedResponse<>(
-        sales.getContent(),
-        sales.getTotalElements());
-    return ResponseEntity.ok(response);
+    try {
+      Page<SaleResponse> sales = saleService.getAllSales(pageRequest);
+      PaginatedResponse<SaleResponse> response = new PaginatedResponse<>(
+          sales.getContent(),
+          sales.getTotalElements());
+      return ResponseEntity.ok(response);
+    } catch (Exception e) {
+      return ResponseEntity.badRequest()
+          .body(new PaginatedResponse<>(List.of(), 0));
+    }
   }
 }

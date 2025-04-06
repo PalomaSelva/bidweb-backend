@@ -27,7 +27,7 @@ public class SecurityConfig {
           auth.requestMatchers("/api/auth/login").permitAll();
           auth.requestMatchers("/api/users").permitAll();
           auth.requestMatchers("/h2-console/**").permitAll();
-          auth.requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**",
+          auth.requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**", "/swagger-resources/**",
               "/webjars/**").permitAll();
           auth.anyRequest().authenticated();
         }).addFilterBefore(securityFilter, BasicAuthenticationFilter.class)

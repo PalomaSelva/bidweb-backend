@@ -21,7 +21,7 @@ public class UserController {
 
     @PostMapping
     @Operation(summary = "Cadastra um novo usuário", description = "Adiciona um novo usuário ao sistema.")
-    public ResponseEntity<?> createUser(@Valid @RequestBody UserRequest request) {
+    public ResponseEntity<Object> createUser(@Valid @RequestBody UserRequest request) {
         try {
             UserResponse userResponse = userService.createUser(request);
             return ResponseEntity.ok(userResponse);
@@ -34,7 +34,7 @@ public class UserController {
 
     @GetMapping("/{id}")
     @Operation(summary = "Busca usuário por ID", description = "Retorna os dados do usuário pelo ID.")
-    public ResponseEntity<?> getUserById(@PathVariable Long id) {
+    public ResponseEntity<Object> getUserById(@PathVariable Long id) {
         try {
             UserResponse userResponse = userService.getUserById(id);
             return ResponseEntity.ok(userResponse);
