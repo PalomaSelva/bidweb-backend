@@ -13,8 +13,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.bidweb.desafio.model.Sale;
 import com.bidweb.desafio.model.User;
+import com.bidweb.desafio.model.Product;
 import com.bidweb.desafio.repository.SaleRepository;
 import com.bidweb.desafio.repository.UserRerpository;
+import com.bidweb.desafio.repository.ProductRepository;
 
 @Configuration
 public class DataInitializer implements CommandLineRunner {
@@ -25,9 +27,12 @@ public class DataInitializer implements CommandLineRunner {
   private UserRerpository userRepository;
 
   @Autowired
+  private ProductRepository productRepository;
+
+  @Autowired
   private PasswordEncoder passwordEncoder;
 
-  private final List<String> products = Arrays.asList(
+  private final List<String> productNames = Arrays.asList(
       "Notebook", "Smartphone", "Tablet", "Smart TV", "Fone de Ouvido",
       "Mouse", "Teclado", "Monitor", "Câmera", "Console de Videogame");
 
@@ -48,24 +53,34 @@ public class DataInitializer implements CommandLineRunner {
       System.out.println("Usuário admin criado com sucesso!");
     }
 
+    // Cria produtos se não existirem
+    if (productRepository.count() == 0) {
+      for (String productName : productNames) {
+        Product product = new Product();
+        product.setName(productName);
+        product.setPrice(getDefaultPrice(productName));
+        productRepository.save(product);
+      }
+      System.out.println("Produtos criados com sucesso!");
+    }
+
+    // Cria vendas se não existirem
     if (saleRepository.count() == 0) {
+      List<Product> products = productRepository.findAll();
+
       for (int i = 0; i < 40; i++) {
         Sale sale = new Sale();
 
-        // Seleciona um produto aleatório da lista
-        String productName = products.get(random.nextInt(products.size()));
-        sale.setProductName(productName);
+        // Seleciona um produto aleatório
+        Product product = products.get(random.nextInt(products.size()));
+        sale.setProduct(product);
 
         // Gera uma quantidade aleatória entre 1 e 10
         int quantity = random.nextInt(10) + 1;
         sale.setQuantity(quantity);
 
-        // Gera um valor base aleatório entre 1000 e 5000
-        double baseValue = 1000 + (random.nextDouble() * 4000);
-        // Ajusta o valor base de acordo com o produto
-        double adjustedValue = adjustValueByProduct(productName, baseValue);
-        // Calcula o valor total
-        BigDecimal totalValue = BigDecimal.valueOf(adjustedValue * quantity);
+        // Calcula o valor total baseado no preço do produto
+        BigDecimal totalValue = product.getPrice().multiply(BigDecimal.valueOf(quantity));
         sale.setTotalValue(totalValue);
 
         // Gera uma data aleatória nos últimos 30 dias
@@ -77,24 +92,30 @@ public class DataInitializer implements CommandLineRunner {
     }
   }
 
-  private double adjustValueByProduct(String productName, double baseValue) {
-    // Ajusta o valor base de acordo com o tipo de produto
+  private BigDecimal getDefaultPrice(String productName) {
     switch (productName) {
       case "Notebook":
-        return baseValue * 1.5;
+        return new BigDecimal("5000.00");
       case "Smart TV":
-        return baseValue * 1.3;
+        return new BigDecimal("3000.00");
       case "Console de Videogame":
-        return baseValue * 1.2;
+        return new BigDecimal("2500.00");
       case "Monitor":
-        return baseValue * 0.8;
+        return new BigDecimal("1500.00");
+      case "Smartphone":
+        return new BigDecimal("2000.00");
+      case "Tablet":
+        return new BigDecimal("1200.00");
       case "Fone de Ouvido":
-        return baseValue * 0.3;
+        return new BigDecimal("300.00");
       case "Mouse":
+        return new BigDecimal("100.00");
       case "Teclado":
-        return baseValue * 0.2;
+        return new BigDecimal("150.00");
+      case "Câmera":
+        return new BigDecimal("800.00");
       default:
-        return baseValue;
+        return new BigDecimal("1000.00");
     }
   }
 }

@@ -45,12 +45,9 @@ public class SaleController {
       @Parameter(description = "Número da página (começando em 1)") @RequestParam(defaultValue = "1") int page,
       @Parameter(description = "Quantidade de itens por página") @RequestParam(defaultValue = "10") int pageSize) {
 
-    PageRequest pageRequest = PageRequest.of(page - 1, pageSize, Sort.by(Sort.Direction.ASC, "id"));
     try {
-      Page<SaleResponse> sales = saleService.getAllSales(pageRequest);
-      PaginatedResponse<SaleResponse> response = new PaginatedResponse<>(
-          sales.getContent(),
-          sales.getTotalElements());
+      PageRequest pageRequest = PageRequest.of(page - 1, pageSize, Sort.by(Sort.Direction.ASC, "id"));
+      PaginatedResponse<SaleResponse> response = saleService.getAllSalesPaginated(pageRequest);
       return ResponseEntity.ok(response);
     } catch (Exception e) {
       return ResponseEntity.badRequest()
