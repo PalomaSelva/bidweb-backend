@@ -2,10 +2,12 @@ package com.bidweb.desafio.controller;
 
 import java.util.List;
 import java.util.Map;
+import java.time.LocalDateTime;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -92,6 +94,23 @@ public class SaleController {
     } catch (Exception e) {
       return ResponseEntity.badRequest()
           .body(ResponseUtils.createMessageResponse(e.getMessage()));
+    }
+  }
+
+  @GetMapping("/daily-receipt")
+  @Operation(summary = "Informações o total de receita por dia", description = "Retorna uma lista com as informações do total de receita por dia.")
+  public ResponseEntity<Object> getDailyReceiptInPeriod(
+      @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from,
+      @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime to) {
+    try {
+      List<Map<String, Object>> response = saleService.getDailyReceiptInPeriod(from, to);
+      return ResponseEntity.ok(response);
+    } catch (IllegalArgumentException e) {
+      return ResponseEntity.badRequest()
+          .body(ResponseUtils.createMessageResponse(e.getMessage()));
+    } catch (Exception e) {
+      return ResponseEntity.badRequest()
+          .body(ResponseUtils.createMessageResponse("Erro ao buscar receita diária: " + e.getMessage()));
     }
   }
 

@@ -43,15 +43,44 @@ public interface SaleRepository extends JpaRepository<Sale, Long> {
   List<Object[]> getMonthReceipts(@Param("startDate") LocalDateTime startDate);
 
   @Query(value = """
+      WITH monthly_totals AS (
+          SELECT
+              TO_CHAR(sale_date, 'YYYY-MM') AS month_year,
+              COUNT(DISTINCT id) as total_sales,
+              SUM(quantity) as total_products
+          FROM sales
+          WHERE sale_date >= :startDate
+          GROUP BY TO_CHAR(sale_date, 'YYYY-MM')
+      )
       SELECT
-          TO_CHAR(s.sale_date, 'YYYY-MM') AS monthWithYear,
-          COUNT(DISTINCT s.id) AS totalSales,
-          SUM(s.quantity) AS totalProducts
-      FROM sales s
-      WHERE s.sale_date >= :startDate
-      GROUP BY s.sale_date, TO_CHAR(s.sale_date, 'YYYY-MM')
-      ORDER BY monthWithYear DESC
+          month_year,
+          total_sales,
+          total_products,
+          LAG(total_products) OVER (ORDER BY month_year) as previous_month_products
+      FROM monthly_totals
+      ORDER BY month_year DESC
       """, nativeQuery = true)
   List<Object[]> getTotalProductsSoldByMonth(@Param("startDate") LocalDateTime startDate);
+
+  @Query(value = """
+      WITH daily_totals AS (
+          SELECT
+              TO_CHAR(sale_date, 'DD/MM') as date,
+              CAST(sale_date AS DATE) as full_date,
+              SUM(total_value) as receipt
+          FROM sales
+          WHERE sale_date >= :startDate
+          AND sale_date <= :endDate
+          GROUP BY TO_CHAR(sale_date, 'DD/MM'), CAST(sale_date AS DATE)
+      )
+      SELECT
+          date,
+          receipt
+      FROM daily_totals
+      ORDER BY full_date
+      """, nativeQuery = true)
+  List<Object[]> getDailyReceiptInPeriod(
+      @Param("startDate") LocalDateTime startDate,
+      @Param("endDate") LocalDateTime endDate);
 
 }

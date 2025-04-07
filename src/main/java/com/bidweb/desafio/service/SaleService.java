@@ -85,10 +85,10 @@ public class SaleService {
 
       Object[] currentMonthData = results.get(0);
       Long currentMonthQuantity = ((Number) currentMonthData[2]).longValue();
-      Long previousMonthQuantity = ((Number) currentMonthData[3]).longValue();
+      Long previousMonthQuantity = currentMonthData[3] != null ? ((Number) currentMonthData[3]).longValue() : 0L;
 
       BigDecimal diffPercentage = BigDecimal.ZERO;
-      if (previousMonthQuantity != null && previousMonthQuantity > 0) {
+      if (previousMonthQuantity > 0) {
         diffPercentage = BigDecimal.valueOf(currentMonthQuantity)
             .multiply(BigDecimal.valueOf(100))
             .divide(BigDecimal.valueOf(previousMonthQuantity), 2, RoundingMode.HALF_UP)
@@ -138,6 +138,39 @@ public class SaleService {
       return response;
     } catch (Exception e) {
       throw new RuntimeException("Erro ao calcular receita total do mês atual: " + e.getMessage());
+    }
+  }
+
+  public List<Map<String, Object>> getDailyReceiptInPeriod(LocalDateTime startDate, LocalDateTime endDate) {
+    try {
+      if (startDate == null) {
+        startDate = LocalDateTime.now().minusDays(7).withHour(0).withMinute(0).withSecond(0);
+      } else {
+        startDate = startDate.withHour(0).withMinute(0).withSecond(0);
+      }
+
+      if (endDate == null) {
+        endDate = startDate != null ? startDate.plusDays(7) : LocalDateTime.now();
+      }
+      endDate = endDate.withHour(23).withMinute(59).withSecond(59);
+
+      // Verificar se o período é maior que 7 dias
+      if (endDate.toLocalDate().toEpochDay() - startDate.toLocalDate().toEpochDay() > 7) {
+        throw new IllegalArgumentException("O intervalo das datas não pode ser superior a 7 dias.");
+      }
+
+      List<Object[]> results = saleRepository.getDailyReceiptInPeriod(startDate, endDate);
+
+      return results.stream()
+          .map(result -> {
+            Map<String, Object> dayData = new HashMap<>();
+            dayData.put("date", result[0]);
+            dayData.put("receipt", result[1]);
+            return dayData;
+          })
+          .collect(Collectors.toList());
+    } catch (Exception e) {
+      throw new RuntimeException("Erro ao buscar receita diária: " + e.getMessage());
     }
   }
 
