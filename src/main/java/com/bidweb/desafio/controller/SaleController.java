@@ -1,6 +1,7 @@
 package com.bidweb.desafio.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -43,11 +44,14 @@ public class SaleController {
   @Operation(summary = "Lista vendas paginadas", description = "Retorna uma lista paginada de vendas.")
   public ResponseEntity<PaginatedResponse<SaleResponse>> getAllSalesPaginated(
       @RequestParam(defaultValue = "1") int page,
-      @RequestParam(defaultValue = "10") int pageSize) {
+      @RequestParam(defaultValue = "10") int pageSize,
+      @RequestParam(required = false) String productName
+
+  ) {
 
     try {
       PageRequest pageRequest = PageRequest.of(page - 1, pageSize, Sort.by(Sort.Direction.ASC, "id"));
-      PaginatedResponse<SaleResponse> response = saleService.getAllSalesPaginated(pageRequest);
+      PaginatedResponse<SaleResponse> response = saleService.getAllSalesPaginated(pageRequest, productName);
       return ResponseEntity.ok(response);
     } catch (Exception e) {
       return ResponseEntity.badRequest()
@@ -66,4 +70,29 @@ public class SaleController {
           .body(ResponseUtils.createMessageResponse(e.getMessage()));
     }
   }
+
+  @GetMapping("/month-receipt")
+  @Operation(summary = "Informações o total de receita do mês", description = "Retorna um objeto com as informações do total de receita do mês.")
+  public ResponseEntity<Object> getMonthReceipt() {
+    try {
+      Map<String, Object> response = saleService.getCurrentMonthTotalReceipt();
+      return ResponseEntity.ok(response);
+    } catch (Exception e) {
+      return ResponseEntity.badRequest()
+          .body(ResponseUtils.createMessageResponse(e.getMessage()));
+    }
+  }
+
+  @GetMapping("/month-products-sold")
+  @Operation(summary = "Informações o total de produtos vendidos do mês", description = "Retorna um objeto com as informações do total de produtos vendidos do mês.")
+  public ResponseEntity<Object> getMonthProductsSold() {
+    try {
+      Map<String, Object> response = saleService.getMonthProductsSold();
+      return ResponseEntity.ok(response);
+    } catch (Exception e) {
+      return ResponseEntity.badRequest()
+          .body(ResponseUtils.createMessageResponse(e.getMessage()));
+    }
+  }
+
 }

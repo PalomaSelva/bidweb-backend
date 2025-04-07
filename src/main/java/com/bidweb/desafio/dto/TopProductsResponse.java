@@ -6,6 +6,6 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class TopProductsResponse {
-  private String produto;
-  private Long quantidadeTotal;
+  private String product;
+  private Long amount;
 }
