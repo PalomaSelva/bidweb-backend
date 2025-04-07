@@ -1,6 +1,6 @@
-# Sistema de Vendas
+# BidWeb Desafio
 
-Este é um projeto Java Spring Boot para gerenciamento de vendas.
+Este é um projeto Java Spring Boot desenvolvido como parte de um desafio técnico.
 
 ## Configuração Inicial
 
