@@ -19,6 +19,9 @@ import com.bidweb.desafio.dto.SaleResponse;
 import com.bidweb.desafio.dto.TopProductsResponse;
 import com.bidweb.desafio.model.Sale;
 import com.bidweb.desafio.repository.SaleRepository;
+import com.bidweb.desafio.dto.MonthProductsResponse;
+import com.bidweb.desafio.dto.MonthReceiptResponse;
+import com.bidweb.desafio.dto.DailyReceiptResponse;
 
 @Service
 public class SaleService {
@@ -69,18 +72,18 @@ public class SaleService {
     }
   }
 
-  public Map<String, Object> getMonthProductsSold() {
+  public MonthProductsResponse getMonthProductsSold() {
     try {
       LocalDateTime now = LocalDateTime.now();
       LocalDateTime startDate = now.minusMonths(2).withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0);
 
       List<Object[]> results = saleRepository.getTotalProductsSoldByMonth(startDate);
-
+      // [
+      // ["2025-04", 150, 900, 850],
+      // ["2025-03", 120, 850, 700],
+      // ]
       if (results.isEmpty()) {
-        Map<String, Object> response = new HashMap<>();
-        response.put("amount", 0L);
-        response.put("diffFromLastMonth", BigDecimal.ZERO);
-        return response;
+        return new MonthProductsResponse(0L, BigDecimal.ZERO);
       }
 
       Object[] currentMonthData = results.get(0);
@@ -95,53 +98,53 @@ public class SaleService {
             .subtract(BigDecimal.valueOf(100));
       }
 
-      Map<String, Object> response = new HashMap<>();
-      response.put("amount", currentMonthQuantity);
-      response.put("diffFromLastMonth", diffPercentage);
-
-      return response;
+      return new MonthProductsResponse(currentMonthQuantity, diffPercentage);
     } catch (Exception e) {
       throw new RuntimeException("Erro ao calcular produtos vendidos: " + e.getMessage());
     }
   }
 
-  public Map<String, Object> getCurrentMonthTotalReceipt() {
+  public MonthReceiptResponse getCurrentMonthTotalReceipt() {
     try {
       LocalDateTime now = LocalDateTime.now();
       LocalDateTime startDate = now.minusMonths(2).withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0);
 
+      // Busca as receitas dos últimos meses no banco de dados
       List<Object[]> results = saleRepository.getMonthReceipts(startDate);
 
+      // Se não houver dados, retorna valores zerados
       if (results.isEmpty()) {
-        Map<String, Object> response = new HashMap<>();
-        response.put("receipt", BigDecimal.ZERO);
-        response.put("diffFromLastMonth", BigDecimal.ZERO);
-        return response;
+        return new MonthReceiptResponse(BigDecimal.ZERO, BigDecimal.ZERO);
       }
 
+      // Pega os dados do mês atual (primeiro item da lista)
       Object[] currentMonthData = results.get(0);
+      // Receita do mês atual
       BigDecimal currentMonthReceipt = (BigDecimal) currentMonthData[1];
+      // Receita do mês anterior
       BigDecimal previousMonthReceipt = (BigDecimal) currentMonthData[2];
 
       BigDecimal diffPercentage = BigDecimal.ZERO;
+
+      // Calcula a diferença percentual apenas se houver receita no mês anterior
       if (previousMonthReceipt != null && previousMonthReceipt.compareTo(BigDecimal.ZERO) > 0) {
+
+        // Fórmula: ((receita_atual * 100) / receita_anterior) - 100
+        // Exemplo: se anterior foi 1000 e atual é 1200
+        // ((1200 * 100) / 1000) - 100 = 20% de aumento
         diffPercentage = currentMonthReceipt
             .multiply(BigDecimal.valueOf(100))
             .divide(previousMonthReceipt, 2, RoundingMode.HALF_UP)
             .subtract(BigDecimal.valueOf(100));
       }
 
-      Map<String, Object> response = new HashMap<>();
-      response.put("receipt", currentMonthReceipt);
-      response.put("diffFromLastMonth", diffPercentage);
-
-      return response;
+      return new MonthReceiptResponse(currentMonthReceipt, diffPercentage);
     } catch (Exception e) {
       throw new RuntimeException("Erro ao calcular receita total do mês atual: " + e.getMessage());
     }
   }
 
-  public List<Map<String, Object>> getDailyReceiptInPeriod(LocalDateTime startDate, LocalDateTime endDate) {
+  public List<DailyReceiptResponse> getDailyReceiptInPeriod(LocalDateTime startDate, LocalDateTime endDate) {
     try {
       if (startDate == null) {
         startDate = LocalDateTime.now().minusDays(7).withHour(0).withMinute(0).withSecond(0);
@@ -162,12 +165,9 @@ public class SaleService {
       List<Object[]> results = saleRepository.getDailyReceiptInPeriod(startDate, endDate);
 
       return results.stream()
-          .map(result -> {
-            Map<String, Object> dayData = new HashMap<>();
-            dayData.put("date", result[0]);
-            dayData.put("receipt", result[1]);
-            return dayData;
-          })
+          .map(result -> new DailyReceiptResponse(
+              (String) result[0],
+              (BigDecimal) result[1]))
           .collect(Collectors.toList());
     } catch (Exception e) {
       throw new RuntimeException("Erro ao buscar receita diária: " + e.getMessage());

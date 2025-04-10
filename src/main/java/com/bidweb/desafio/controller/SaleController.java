@@ -1,7 +1,6 @@
 package com.bidweb.desafio.controller;
 
 import java.util.List;
-import java.util.Map;
 import java.time.LocalDateTime;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,11 +16,13 @@ import org.springframework.web.bind.annotation.RestController;
 import com.bidweb.desafio.dto.PaginatedResponse;
 import com.bidweb.desafio.dto.SaleResponse;
 import com.bidweb.desafio.dto.TopProductsResponse;
+import com.bidweb.desafio.dto.MonthProductsResponse;
+import com.bidweb.desafio.dto.MonthReceiptResponse;
+import com.bidweb.desafio.dto.DailyReceiptResponse;
 import com.bidweb.desafio.service.SaleService;
 import com.bidweb.desafio.util.ResponseUtils;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 
 @RestController
 @RequestMapping("/api/sales")
@@ -74,10 +75,10 @@ public class SaleController {
   }
 
   @GetMapping("/month-receipt")
-  @Operation(summary = "Informações o total de receita do mês", description = "Retorna um objeto com as informações do total de receita do mês.")
+  @Operation(summary = "Receita do mês", description = "Retorna a receita do mês atual e a diferença percentual em relação ao mês anterior")
   public ResponseEntity<Object> getMonthReceipt() {
     try {
-      Map<String, Object> response = saleService.getCurrentMonthTotalReceipt();
+      MonthReceiptResponse response = saleService.getCurrentMonthTotalReceipt();
       return ResponseEntity.ok(response);
     } catch (Exception e) {
       return ResponseEntity.badRequest()
@@ -85,11 +86,11 @@ public class SaleController {
     }
   }
 
-  @GetMapping("/month-products-sold")
-  @Operation(summary = "Informações o total de produtos vendidos do mês", description = "Retorna um objeto com as informações do total de produtos vendidos do mês.")
+  @GetMapping("/month-products")
+  @Operation(summary = "Produtos vendidos no mês", description = "Retorna a quantidade de produtos vendidos no mês atual e a diferença percentual em relação ao mês anterior")
   public ResponseEntity<Object> getMonthProductsSold() {
     try {
-      Map<String, Object> response = saleService.getMonthProductsSold();
+      MonthProductsResponse response = saleService.getMonthProductsSold();
       return ResponseEntity.ok(response);
     } catch (Exception e) {
       return ResponseEntity.badRequest()
@@ -98,19 +99,19 @@ public class SaleController {
   }
 
   @GetMapping("/daily-receipt")
-  @Operation(summary = "Informações o total de receita por dia", description = "Retorna uma lista com as informações do total de receita por dia.")
-  public ResponseEntity<Object> getDailyReceiptInPeriod(
+  @Operation(summary = "Receita diária", description = "Retorna a receita diária em um período de até 7 dias")
+  public ResponseEntity<?> getDailyReceiptInPeriod(
       @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from,
       @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime to) {
     try {
-      List<Map<String, Object>> response = saleService.getDailyReceiptInPeriod(from, to);
+      List<DailyReceiptResponse> response = saleService.getDailyReceiptInPeriod(from, to);
       return ResponseEntity.ok(response);
     } catch (IllegalArgumentException e) {
       return ResponseEntity.badRequest()
           .body(ResponseUtils.createMessageResponse(e.getMessage()));
     } catch (Exception e) {
       return ResponseEntity.badRequest()
-          .body(ResponseUtils.createMessageResponse("Erro ao buscar receita diária: " + e.getMessage()));
+          .body(ResponseUtils.createMessageResponse(e.getMessage()));
     }
   }
 
