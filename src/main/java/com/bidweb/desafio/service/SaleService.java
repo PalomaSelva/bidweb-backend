@@ -3,10 +3,7 @@ package com.bidweb.desafio.service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -119,9 +116,9 @@ public class SaleService {
 
       // Pega os dados do mês atual (primeiro item da lista)
       Object[] currentMonthData = results.get(0);
-      // Receita do mês atual
+
       BigDecimal currentMonthReceipt = (BigDecimal) currentMonthData[1];
-      // Receita do mês anterior
+
       BigDecimal previousMonthReceipt = (BigDecimal) currentMonthData[2];
 
       BigDecimal diffPercentage = BigDecimal.ZERO;
